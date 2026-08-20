@@ -427,7 +427,7 @@
      bottom edge is what visibly travels forward. Origin is the panel's own
      top edge so that edge stays anchored and only the bottom moves. */
   .tilt-stage { perspective:1600px; perspective-origin:50% 30%; }
-  .tilt-panel { transform-origin:50% 0%; will-change:transform, opacity; }
+  .tilt-panel { transform-origin:50% 0%; will-change:transform; }
   @media (prefers-reduced-motion: reduce) {
     .tilt-panel { transform:none !important; opacity:1 !important; }
   }
@@ -687,7 +687,6 @@
       var deg = MAX_DEG * (1 - eased);
       var rise = RISE_PX * (1 - eased);
       p.style.transform = 'rotateX(' + deg.toFixed(2) + 'deg) translateY(' + rise.toFixed(1) + 'px)';
-      p.style.opacity = String(0.55 + 0.45 * eased);
     });
   }
 
