@@ -420,6 +420,17 @@
   body { margin:0; }
   .app { padding-top:64px; }
   .slot { margin:20px 0; }
+
+  /* ── scroll tilt-in: opt-in per slot via TILT_SLOTS in build-site.py ──
+     The panel starts leaning back (top toward the viewer, bottom receded
+     into the screen) and settles flat as it scrolls up into place - the
+     bottom edge is what visibly travels forward. Origin is the panel's own
+     top edge so that edge stays anchored and only the bottom moves. */
+  .tilt-stage { perspective:1600px; perspective-origin:50% 30%; }
+  .tilt-panel { transform-origin:50% 0%; will-change:transform, opacity; }
+  @media (prefers-reduced-motion: reduce) {
+    .tilt-panel { transform:none !important; opacity:1 !important; }
+  }
 </style>
 </head>
 <body class="preview-mode nonotes">
@@ -511,7 +522,7 @@
       <div class="eb">What shipped</div>
       <div class="big" data-edit="s07-head">Three surfaces, one design language.</div>
       <p class="t" data-edit="s07-p1">Every component had to work in the checkout, in Spectrum's admin views and in Playground's simulator with no special case. BillDesk UI already existed. I reused it and built the components it was missing, PulseBar and the title bar among them.</p>
-      <div class="slot lg has-media" data-slot="04" data-ar="auto"><div class="slot-media-box show" data-media-box="04"><video src="media/spectrum-pg-sdk.mp4" muted="" loop="" playsinline="" preload="auto" data-autoplay="1"></video></div></div>
+      <div class="slot lg has-media tilt-stage" data-slot="04" data-ar="auto"><div class="slot-media-box show tilt-panel" data-media-box="04"><video src="media/spectrum-pg-sdk.mp4" muted="" loop="" playsinline="" preload="auto" data-autoplay="1"></video></div></div>
       </div>
   </section>
 
@@ -648,6 +659,45 @@
     });
   }, { threshold: 0.01 });
   vids.forEach(function (v) { io.observe(v); });
+})();
+
+/* Scroll-linked tilt-in: progress is driven by the panel's position in the
+   viewport, not a one-shot trigger, so it settles as you scroll rather than
+   snapping in. Starts rotated back MAX_DEG (top pinned, bottom receded);
+   reaches flat once the panel's centre has scrolled to ~62% up the
+   viewport, matching where a reader's eye actually is by the time they've
+   scrolled a section into reading position. */
+(function () {
+  var panels = [].slice.call(document.querySelectorAll('.tilt-panel'));
+  if (!panels.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var MAX_DEG = 22, RISE_PX = 46, ticking = false;
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function update() {
+    ticking = false;
+    var vh = innerHeight;
+    panels.forEach(function (p) {
+      var r = p.getBoundingClientRect();
+      var center = r.top + r.height / 2;
+      // progress 0 = panel centre at the bottom of the viewport (just entering)
+      // progress 1 = panel centre at 62% up the viewport (settled)
+      var progress = clamp((vh - center) / (vh * 0.62), 0, 1);
+      var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      var deg = -MAX_DEG * (1 - eased);
+      var rise = RISE_PX * (1 - eased);
+      p.style.transform = 'rotateX(' + deg.toFixed(2) + 'deg) translateY(' + rise.toFixed(1) + 'px)';
+      p.style.opacity = String(0.55 + 0.45 * eased);
+    });
+  }
+
+  function onScroll() {
+    if (!ticking) { requestAnimationFrame(update); ticking = true; }
+  }
+
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+  update();
 })();
 </script>
 </body>
