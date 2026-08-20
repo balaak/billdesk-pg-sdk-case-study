@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BillDesk Payment SDK - Case Study</title>
+<meta name="description" content="A pre-built payment screen merchants embed and brand as their own. Rebuilt across five platforms. Design lead, 2023-2026.">
+<meta property="og:title" content="BillDesk Payment SDK - Case Study">
+<meta property="og:description" content="A pre-built payment screen merchants embed and brand as their own. Rebuilt across five platforms. Design lead, 2023-2026.">
+<meta property="og:type" content="article">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F26522'/%3E%3Crect x='9' y='12' width='14' height='2.6' rx='1.3' fill='white'/%3E%3Crect x='9' y='17.4' width='9' height='2.6' rx='1.3' fill='white' opacity='.72'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  /* ══ BillDesk UI · light v2 ══
+     Every value below is copied verbatim from BillDeskUI-light-v2.
+     Token names are BillDesk's own. Nothing derived, nothing invented.
+     Light only, committed rather than defaulted. ══ */
+  :root {
+    color-scheme: light;
+
+    /* brand */
+    --orange:        #F26522;
+    --orange-hover:  #D9541A;
+    --orange-light:  #FEF0E8;
+    --orange-xlight: #FFF8F4;
+    --orange-deep:   #B84415;
+
+    /* neutrals */
+    --canvas:    #FFFFFF;
+    --surface:   #F7F8FA;
+    --surface-2: #F0F2F6;
+    --text-1:    #0D1526;
+    --text-2:    #4A5568;
+    --text-3:    #8A97AC;
+    --border:    #E2E8F0;
+    --border-2:  #CBD5E0;
+    --dark:      #1A1A2E;
+
+    /* semantic */
+    --success:    #0A8F5C;
+    --success-bg: #E6F7F1;
+    --warning:    #D97706;
+    --warning-bg: #FEF3C7;
+    --error:      #C0392B;
+    --error-bg:   #FDEDEC;
+
+    /* radius, bound to component role per the system */
+    --r-input:4px; --r-btn:6px; --r-card:8px; --r-modal:12px;
+    --media-radius:12px; /* image/video units, configurable via Settings */
+
+    --sans: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  body { background:var(--canvas); color:var(--text-1); font-family:var(--sans);
+         font-size:17px; line-height:1.58; -webkit-font-smoothing:antialiased; }
+  .app { max-width:1180px; margin:0 auto; padding:0 26px 110px; }
+
+  /* ---------- masthead ---------- */
+  .mast { padding:40px 0 22px; border-bottom:2px solid var(--text-1); }
+  .mast .kick { font-family:var(--mono); font-size:10.5px; letter-spacing:.2em;
+                text-transform:uppercase; color:var(--orange); margin-bottom:14px; }
+  .mast h1 { font-size:clamp(28px,4vw,40px); letter-spacing:-.035em; font-weight:700;
+             margin-bottom:10px; }
+  .mast p { color:var(--text-2); font-size:16px; max-width:70ch; }
+
+  .dash { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+          gap:1px; background:var(--border); border:1px solid var(--border);
+          border-radius:var(--r-card); overflow:hidden; margin-top:22px; }
+  .dash .d { background:var(--canvas); padding:15px 16px; }
+  .dash .dv { font-size:23px; font-weight:690; letter-spacing:-.03em;
+              font-variant-numeric:tabular-nums; line-height:1.1; }
+  .dash .dk { font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+              text-transform:uppercase; color:var(--text-3); margin-top:4px; }
+
+  /* ---------- controls ---------- */
+  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+         padding:18px 0; position:sticky; top:0; z-index:20;
+         background:var(--canvas); border-bottom:1px solid var(--border); }
+  button { font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+           text-transform:uppercase; padding:7px 12px; border-radius:var(--r-btn);
+           border:1px solid var(--border); background:var(--surface); color:var(--text-2);
+           cursor:pointer; }
+  button:hover { color:var(--text-1); border-color:var(--text-3); }
+  button:focus-visible { outline:2px solid var(--orange); outline-offset:2px; }
+  button.on { background:var(--orange); color:#FFFFFF; border-color:var(--orange); }
+  .bar .sp { flex:1; }
+  .bar .live { font-family:var(--mono); font-size:10.5px; color:var(--text-3);
+               letter-spacing:.08em; }
+  .bar .live b { color:var(--orange); font-weight:400; }
+
+  /* ---------- index ---------- */
+  .index { margin-top:26px; display:grid;
+           grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:1px;
+           background:var(--border); border:1px solid var(--border);
+           border-radius:var(--r-card); overflow:hidden; }
+  .index a { background:var(--canvas); padding:13px 15px; text-decoration:none;
+             color:var(--text-2); display:flex; gap:10px; align-items:baseline; }
+  .index a:hover { background:var(--surface); color:var(--text-1); }
+  .index a .ix { font-family:var(--mono); font-size:10px; color:var(--orange); flex:none; }
+  .index a .nm { font-size:14px; line-height:1.4; }
+  .index a .st { margin-left:auto; width:7px; height:7px; border-radius:50%; flex:none;
+                 background:var(--text-3); margin-top:6px; }
+  .index a[data-st="locked"] .st { background:var(--success); }
+  .index a[data-st="next"] .st { background:var(--orange); }
+
+  /* ---------- section shell ---------- */
+  .sec { margin-top:16px; border:1px solid var(--border); border-radius:var(--r-card);
+         background:var(--surface); overflow:hidden; scroll-margin-top:80px; }
+  .sec[data-st="locked"] { border-color:var(--success-bg); }
+  .sec[data-st="next"] { border-color:var(--orange-light); }
+
+  /* ---------- hide-from-reader: reversible, workbench-only marker ---------- */
+  .sec[data-hidden="true"] { border-color:var(--error-bg); border-style:dashed; }
+  .sec[data-hidden="true"] .shead { background:var(--error-bg); }
+  .hide-toggle { font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+                 padding:3px 9px; border-radius:9999px; border:1px solid var(--border); background:var(--canvas);
+                 color:var(--text-3); cursor:pointer; flex:none; }
+  .hide-toggle:hover { border-color:var(--text-3); color:var(--text-1); }
+  .hide-toggle.is-hidden { background:var(--error-bg); border-color:var(--error); color:var(--error); }
+  .zz[data-hidden="true"] { opacity:.4; }
+  .zz .hide-toggle { margin-left:auto; }
+  body.preview-mode .sec[data-hidden="true"],
+  body.preview-mode .zz[data-hidden="true"] { display:none !important; }
+
+  .shead { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center;
+           padding:15px 20px; cursor:pointer; background:var(--surface-2);
+           border-bottom:1px solid var(--border); }
+  .shead:hover { background:var(--border); }
+  .shead .num { font-family:var(--mono); font-size:11px; color:var(--orange); flex:none; }
+  .shead .ttl { font-size:16px; font-weight:640; letter-spacing:-.015em; }
+  .shead .meta { margin-left:auto; display:flex; gap:12px; align-items:center;
+                 font-family:var(--mono); font-size:10px; color:var(--text-3);
+                 letter-spacing:.08em; }
+  .chip { font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+          text-transform:uppercase; padding:3px 9px; border-radius:9999px; flex:none; }
+  .chip.locked { background:var(--success-bg); color:var(--success); }
+  .chip.next { background:var(--orange-light); color:var(--orange); }
+  .chip.pending { background:var(--surface-2); color:var(--text-3); }
+  .caret { font-family:var(--mono); color:var(--orange); font-size:13px; flex:none; }
+
+  .sbody { padding:30px 26px 32px; background:var(--canvas); }
+  .sec.shut .sbody { display:none; }
+
+  /* ---------- case-study copy ---------- */
+  .eb { font-family:var(--mono); font-size:10.5px; letter-spacing:.2em;
+        text-transform:uppercase; color:var(--orange); margin-bottom:14px; }
+  .H1 { font-size:clamp(38px,6vw,68px); line-height:.96; letter-spacing:-.045em;
+        font-weight:700; max-width:15ch; text-wrap:balance; margin-bottom:8px; }
+  .big { font-size:clamp(26px,4.2vw,44px); line-height:1.06; letter-spacing:-.036em;
+         font-weight:690; max-width:20ch; text-wrap:balance; margin-bottom:8px; }
+  .big.w { max-width:26ch; }
+  .lede { font-size:clamp(17px,2vw,21px); line-height:1.45; color:var(--text-2);
+          max-width:54ch; text-wrap:pretty; margin-top:0; }
+  .lede b { color:var(--text-1); font-weight:600; }
+  p.t { font-size:16.5px; color:var(--text-2); max-width:62ch; margin-top:0; margin-bottom:13px;
+        text-wrap:pretty; }
+  p.t:last-child { margin-bottom:0; }
+  p.t b { color:var(--text-1); font-weight:600; }
+
+  .credline { font-family:var(--mono); font-size:11.5px; color:var(--text-3);
+              letter-spacing:.06em; margin-top:26px; padding-top:18px;
+              border-top:1px solid var(--border); }
+
+  /* ---------- layout system: per-section pattern control ----------
+     Row-gap is deliberately 0: every heading-to-subtext gap is 8px everywhere,
+     controlled by .H1/.big's own margin-bottom, not by the grid. Column-gap
+     (24px) is the separate, unrelated split-pattern gutter. Text-to-image gap
+     is its own consistent tier (.lgrid > .visual, 24px) wherever a visual
+     follows text. ---------- */
+  .lgrid { display:grid; grid-template-columns:repeat(12,1fr); column-gap:24px; row-gap:0; align-items:start; }
+  .lgrid > .head, .lgrid > .body-col, .lgrid > .visual { grid-column:1/13; }
+  .lgrid > .visual { margin-top:24px; }
+
+  .sec[data-layout="split-left"] .lgrid > .head { grid-column:1/6; }
+  .sec[data-layout="split-left"] .lgrid > .body-col { grid-column:7/13; }
+  .sec[data-layout="split-left"] .lgrid > .visual { grid-column:1/13; }
+
+  .sec[data-layout="split-right"] .lgrid > .head { grid-column:8/13; text-align:right; }
+  .sec[data-layout="split-right"] .lgrid > .body-col { grid-column:1/7; }
+  .sec[data-layout="split-right"] .lgrid > .visual { grid-column:1/13; }
+
+  .sec[data-layout="statement"] .lgrid > .head,
+  .sec[data-layout="statement"] .lgrid > .body-col { grid-column:3/11; text-align:center; }
+  .sec[data-layout="statement"] .lgrid > .head .big,
+  .sec[data-layout="statement"] .lgrid > .head .H1,
+  .sec[data-layout="statement"] .lgrid > .body-col p.t { margin-left:auto; margin-right:auto; }
+
+  /* Explicit row assignment, not auto-placement: a tall .visual can otherwise
+     land in the SAME row as .body-col (not spanning both), stretching that
+     row's height and, combined with center-aligned items, pushing .head far
+     from .body-col. Locking head=row1, body-col=row2, visual=row1/span 2
+     guarantees the text stays adjacent. row1 is capped to `auto` (head's own
+     content) and row2 is `1fr` so ANY extra height a tall visual needs is
+     absorbed entirely after body-col, not split across both rows, which
+     would otherwise still push body-col down even with correct row/align. */
+  .sec[data-layout="evidence-left"] .lgrid,
+  .sec[data-layout="evidence-right"] .lgrid { grid-template-rows:auto 1fr; }
+  .sec[data-layout="evidence-left"] .lgrid > .head,
+  .sec[data-layout="evidence-right"] .lgrid > .head { grid-row:1; }
+  .sec[data-layout="evidence-left"] .lgrid > .body-col,
+  .sec[data-layout="evidence-right"] .lgrid > .body-col { grid-row:2; align-self:start; }
+  .sec[data-layout="evidence-left"] .lgrid > .visual,
+  .sec[data-layout="evidence-right"] .lgrid > .visual { grid-row:1 / 3; align-self:start; }
+  .sec[data-layout="evidence-left"] .lgrid > .visual { grid-column:1/6; }
+  .sec[data-layout="evidence-left"] .lgrid > .head,
+  .sec[data-layout="evidence-left"] .lgrid > .body-col { grid-column:7/13; }
+  .sec[data-layout="evidence-right"] .lgrid > .head,
+  .sec[data-layout="evidence-right"] .lgrid > .body-col { grid-column:1/7; }
+  .sec[data-layout="evidence-right"] .lgrid > .visual { grid-column:8/13; }
+
+  /* ---------- hero variant switch ---------- */
+  .vswitch { display:flex; flex-wrap:wrap; gap:7px; align-items:center;
+             padding-bottom:22px; margin-bottom:26px; border-bottom:1px solid var(--border); }
+  .vswitch .lbl { font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+                  text-transform:uppercase; color:var(--text-3); margin-right:5px; }
+  .hv { display:none; }
+  .hv.active { display:block; }
+
+  /* four-column credit row (variant B) */
+  .crow { display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+          gap:0; margin-top:30px; padding-top:22px; border-top:1px solid var(--border); }
+  .crow .cc { padding:0 22px; border-right:1px solid var(--surface-2); }
+  .crow .cc:first-child { padding-left:0; }
+  .crow .cc:last-child { padding-right:0; border-right:0; }
+  .crow .ck { font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+              text-transform:uppercase; color:var(--text-3); margin-bottom:9px; }
+  .crow .cv { font-size:17px; font-weight:650; letter-spacing:-.015em;
+              font-variant-numeric:tabular-nums; }
+  .crow .cs { font-size:14px; color:var(--text-2); margin-top:2px; }
+  @media (max-width:640px) {
+    .crow .cc { border-right:0; padding-right:0; padding-left:0; margin-bottom:16px; }
+  }
+
+  .nums { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+          gap:1px; background:var(--border); border:1px solid var(--border);
+          border-radius:var(--r-card); overflow:hidden; margin:26px 0; }
+  .n { background:var(--canvas); padding:20px 18px; }
+  .n .v { font-size:clamp(21px,2.5vw,28px); font-weight:690; letter-spacing:-.035em;
+          font-variant-numeric:tabular-nums; line-height:1.08; margin-bottom:5px; }
+  .n .k { font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+          text-transform:uppercase; color:var(--text-3); line-height:1.5; margin-bottom:9px; }
+  .n.tbd .v { color:var(--text-3); }
+  .prov { font-family:var(--mono); font-size:8.5px; letter-spacing:.09em;
+          text-transform:uppercase; display:inline-flex; align-items:center; gap:5px;
+          padding:3px 8px; border-radius:9999px; }
+  .prov::before { content:""; width:4px; height:4px; border-radius:50%; flex:none; }
+  .prov.ok { background:var(--success-bg); color:var(--success); }
+  .prov.ok::before { background:var(--success); }
+  .prov.need { background:var(--orange-light); color:var(--orange); }
+  .prov.need::before { background:var(--orange); }
+
+  .g3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+        gap:1px; background:var(--border); border:1px solid var(--border);
+        border-radius:var(--r-card); overflow:hidden; margin-top:24px; }
+  .c { background:var(--canvas); padding:22px 20px; }
+  .c .r { font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+          text-transform:uppercase; color:var(--text-3); margin-bottom:11px; }
+  .c h4 { font-size:18px; font-weight:660; letter-spacing:-.018em; margin-bottom:6px; }
+  .c p { font-size:14px; color:var(--text-2); line-height:1.55; margin:0; }
+  .c .fx { margin-top:14px; padding-top:11px; border-top:1px solid var(--border);
+           font-family:var(--mono); font-size:10.5px; color:var(--orange); letter-spacing:.04em; }
+
+  .zz { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;
+        margin-top:22px; padding-top:22px; border-top:1px solid var(--surface-2); }
+  .zz.first { border-top:0; padding-top:0; }
+  .zz.flip .zt { order:2; }
+  .zt .p { font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+           text-transform:uppercase; color:var(--orange); margin-bottom:8px; }
+  .zt h4 { font-size:20px; font-weight:660; letter-spacing:-.02em; margin-bottom:6px; }
+  .zt p { font-size:14.5px; color:var(--text-2); line-height:1.55; margin:0; }
+  .zz .slot { margin:0; }
+
+  .rules { list-style:none; margin-top:20px; border-top:1px solid var(--border); }
+  .rules li { font-size:15px; color:var(--text-2); padding:11px 0 11px 24px;
+              border-bottom:1px solid var(--surface-2); position:relative; line-height:1.5; }
+  .rules li::before { content:""; position:absolute; left:9px; top:19px;
+                      width:6px; height:6px; border-radius:50%; background:var(--text-1); }
+  .rules li b { color:var(--text-1); font-weight:600; }
+
+  .quote { border-left:3px solid var(--orange); padding-left:18px; margin:22px 0;
+           font-size:16.5px; line-height:1.5; color:var(--text-2); max-width:60ch; }
+  .quote cite { display:block; margin-top:8px; font-family:var(--mono); font-size:10.5px;
+                font-style:normal; letter-spacing:.05em; color:var(--text-3); }
+
+  .cons { margin-top:22px; border-top:1px solid var(--border); }
+  .con { display:grid; grid-template-columns:minmax(115px,165px) 1fr; gap:20px;
+         padding:13px 0; border-bottom:1px solid var(--surface-2); align-items:baseline; }
+  .con .k { font-family:var(--mono); font-size:11px; letter-spacing:.06em; color:var(--orange); }
+  .con .v { font-size:15px; color:var(--text-2); max-width:58ch; line-height:1.55; }
+
+  /* ---------- media slots (CMS, excluded from word count) ---------- */
+  .slot { margin:20px 0; border-radius:var(--r-card); overflow:hidden; position:relative; }
+  .slot.drag-over .slot-empty { border-color:var(--orange); background:var(--orange-light); color:var(--orange); }
+
+  .slot-empty { background:var(--surface-2); border:1px dashed var(--border-2); border-radius:var(--media-radius);
+                padding:22px 20px; font-family:var(--mono);
+                display:flex; flex-direction:column; align-items:center; justify-content:center;
+                gap:6px; text-align:center; color:var(--text-3); }
+  .slot-empty .id { font-size:9px; letter-spacing:.16em; color:var(--orange);
+                     border:1px solid var(--orange-light); padding:2px 9px; border-radius:9999px; }
+  .slot-empty .t { font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-2); }
+  .slot-empty .d { font-size:11px; max-width:44ch; line-height:1.6; }
+  .slot.xl .slot-empty{min-height:340px} .slot.lg .slot-empty{min-height:240px}
+  .slot.md .slot-empty{min-height:175px} .slot.sm .slot-empty{min-height:130px}
+  .slot.has-media .slot-empty { display:none; }
+  body.noslots .slot { display:none; }
+
+  .slot-media-box { display:none; width:100%; border-radius:var(--media-radius); overflow:hidden; background:var(--surface-2); }
+  .slot-media-box.show { display:block; }
+  .slot-media-box img, .slot-media-box video { display:block; width:100%; transform-origin:center; }
+  .slot-media-box.forced-ar img, .slot-media-box.forced-ar video { height:100%; object-fit:cover; }
+  .slot-media-box:not(.forced-ar) img, .slot-media-box:not(.forced-ar) video { height:auto; }
+
+  .slot-tools { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:9px; }
+  .slot-tools .up-lbl { font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+                         padding:6px 11px; border-radius:var(--r-btn); border:1px solid var(--border);
+                         background:var(--canvas); color:var(--text-2); cursor:pointer; }
+  .slot-tools .up-lbl:hover { border-color:var(--text-3); color:var(--text-1); }
+  .slot-tools select { font-family:var(--mono); font-size:10px; letter-spacing:.04em; padding:6px 8px;
+                        border-radius:var(--r-btn); border:1px solid var(--border);
+                        background:var(--canvas); color:var(--text-2); }
+  .slot-tools .clr-btn { display:none; font-family:var(--mono); font-size:10px; letter-spacing:.08em;
+                          text-transform:uppercase; padding:6px 11px; border-radius:var(--r-btn);
+                          border:1px solid var(--error-bg); background:transparent; color:var(--error); cursor:pointer; }
+  .slot.has-media .slot-tools .clr-btn { display:inline-block; }
+
+  .note { border-left:2px solid var(--orange); padding:2px 0 2px 13px; margin:15px 0;
+          font-family:var(--mono); font-size:11px; line-height:1.7;
+          color:var(--text-3); max-width:70ch; }
+  .note b { color:var(--orange); font-weight:400; }
+  body.nonotes .note { display:none; }
+
+  /* ---------- inline text editing ---------- */
+  [data-edit] { border-radius:3px; }
+  body:not(.preview-mode) [data-edit] { cursor:text; }
+  body:not(.preview-mode) [data-edit]:hover { box-shadow:0 0 0 1px var(--border-2); }
+  body:not(.preview-mode) [data-edit]:focus { outline:none; box-shadow:0 0 0 2px var(--orange);
+                                               background:var(--orange-light); }
+  body.preview-mode [data-edit] { pointer-events:none; }
+
+  /* ---------- CMS action row ---------- */
+  .bar-sub { display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+             padding:12px 0; border-bottom:1px solid var(--border); }
+  .bar-lbl { font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+             text-transform:uppercase; color:var(--text-3); margin-right:2px; }
+  button.primary { background:var(--orange); color:#FFFFFF; border-color:var(--orange); font-weight:500; }
+  button.primary:hover { background:var(--orange-hover); border-color:var(--orange-hover); color:#FFFFFF; }
+  button.danger { color:var(--error); border-color:var(--error-bg); }
+  button.danger:hover { background:var(--error-bg); border-color:var(--error); color:var(--error); }
+
+  /* ---------- settings panel ---------- */
+  .cfg-panel { display:none; margin-top:0; padding:16px 18px 18px;
+               border:1px solid var(--border); border-top:0; border-radius:0 0 var(--r-card) var(--r-card);
+               background:var(--surface); }
+  .cfg-panel.open { display:block; }
+  .cfg-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .cfg-row .cfg-label { font-family:var(--mono); font-size:11px; letter-spacing:.04em; color:var(--text-2);
+                         min-width:190px; }
+  .cfg-row input[type="range"] { flex:1; min-width:160px; max-width:280px; accent-color:var(--orange); }
+  .cfg-row .cfg-val { font-family:var(--mono); font-size:11px; color:var(--orange); min-width:40px;
+                       font-variant-numeric:tabular-nums; }
+  .cfg-row .cfg-reset { font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+                         padding:4px 9px; border-radius:var(--r-btn); border:1px solid var(--border);
+                         background:var(--canvas); color:var(--text-3); cursor:pointer; }
+  .cfg-row .cfg-reset:hover { color:var(--text-1); border-color:var(--text-3); }
+  .cfg-preview { margin-top:12px; display:flex; gap:10px; }
+  .cfg-swatch { width:64px; height:40px; background:var(--surface-2); border:1px dashed var(--border-2);
+                border-radius:var(--media-radius); flex:none; }
+  .cfg-hint { font-family:var(--mono); font-size:10.5px; color:var(--text-3); line-height:1.6; align-self:center; }
+
+  /* ---------- floating preview toggle ---------- */
+  .preview-fab { position:fixed; bottom:22px; right:22px; z-index:500;
+                 padding:13px 20px; border-radius:9999px; border:1px solid var(--orange);
+                 background:var(--orange); color:#FFFFFF; font-family:var(--mono); font-size:11px;
+                 letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+                 box-shadow:0 6px 22px rgba(13,21,38,.18); }
+  .preview-fab:hover { background:var(--orange-hover); border-color:var(--orange-hover); }
+  .preview-fab.on { background:var(--text-1); border-color:var(--text-1); }
+
+  /* ---------- preview mode: strip every bit of tool chrome ---------- */
+  body.preview-mode .mast,
+  body.preview-mode .bar,
+  body.preview-mode .bar-sub,
+  body.preview-mode .cfg-panel,
+  body.preview-mode .index,
+  body.preview-mode .shead,
+  body.preview-mode .note,
+  body.preview-mode .slot-tools,
+  body.preview-mode .hide-toggle,
+  body.preview-mode .vswitch { display:none !important; }
+  body.preview-mode .app { padding-top:64px; }
+  body.preview-mode .sec { border:0; background:transparent; border-radius:0; margin-top:0; }
+  body.preview-mode .sec + .sec { margin-top:68px; }
+  body.preview-mode .sbody { display:block !important; padding:0; background:transparent; }
+  body.preview-mode .slot-empty { border-style:solid; }
+  body.preview-mode .slot-empty .id,
+  body.preview-mode .slot-empty .t,
+  body.preview-mode .slot-empty .d { display:none; }
+
+  @media (max-width:760px) {
+    .zz { grid-template-columns:1fr; gap:12px; }
+    .zz.flip .zt { order:0; }
+    .con { grid-template-columns:1fr; gap:3px; }
+    .nums { grid-template-columns:repeat(2,1fr); }
+    .sbody { padding:24px 18px 26px; }
+    .shead .meta { margin-left:0; width:100%; }
+    .lgrid > .head, .lgrid > .body-col, .lgrid > .visual { grid-column:1/13 !important; grid-row:auto !important; text-align:left !important; margin-left:0 !important; margin-right:0 !important; }
+  }
+
+
+/* ── reader build ───────────────────────────────────────────────────────
+   The workbench's preview-mode rules are the whole design here, applied by
+   the body class below rather than toggled by a button. Nothing about the
+   spacing, type scale or grid is re-specified: it is the same stylesheet the
+   layout was measured against. ────────────────────────────────────────── */
+  body { margin:0; }
+  .app { padding-top:64px; }
+  .slot { margin:20px 0; }
+</style>
+</head>
+<body class="preview-mode nonotes">
+<meta charset="utf-8">
+<title>PG SDK · Case Study Workbench</title>
+
+<div class="app">
+
+  <!-- ══════════════ 01 · HERO · LOCKED ══════════════ -->
+  <section class="sec" id="s01" data-st="locked" data-name="Hero" data-layout="hero-split">
+    <div class="sbody">
+      <!-- ── VARIANT A ── -->
+      <div class="hv active" data-v="A">
+        <div class="eb" data-edit="s01-a-eb">Payments · Case study · 2023–2026</div>
+        <div class="H1" data-edit="s01-a-h1">BillDesk Payment SDK</div>
+        <p class="lede" data-edit="s01-a-lede">A <b>pre-built payment screen</b> merchants embed in their own app and brand as their own. I led the rebuild across five platforms for three years. It now runs at <b>30,000+ transactions a minute</b>.</p>
+        <div class="crow">
+          <div class="cc"><div class="ck">Role</div><div class="cv">Design lead</div><div class="cs">conceived · pitched · led</div></div>
+          <div class="cc"><div class="ck">Duration</div><div class="cv">3 years</div><div class="cs">2023 → ongoing</div></div>
+          <div class="cc"><div class="ck">Platforms</div><div class="cv">5</div><div class="cs">mWeb · dWeb · Flutter · Android · iOS</div></div>
+          <div class="cc"><div class="ck">Scale</div><div class="cv">30,000+</div><div class="cs">payments a minute</div></div>
+        </div>
+      </div>
+
+      <!-- ── VARIANT B ── -->
+      <div class="slot xl has-media" data-slot="01" data-ar="16/9"><div class="slot-media-box show forced-ar" data-media-box="01" style="aspect-ratio:16/9;"><video src="media/hero-reel.mp4" muted="" loop="" playsinline="" preload="auto" data-autoplay="1"></video></div></div>
+
+      </div>
+  </section>
+
+  <!-- ══════════════ 02 · ORIGIN ══════════════ -->
+  <section class="sec" id="s02" data-st="next" data-name="Origin" data-layout="split-left">
+    <div class="sbody">
+      <div class="lgrid">
+        <div class="head">
+          <div class="eb">Origin</div>
+          <div class="big" data-edit="s02-head">Nobody asked me to do this.</div>
+        </div>
+        <div class="body-col">
+          <p class="t" data-edit="s02-p1">I ran an internal audit of BillDesk's existing products looking for opportunities. What came back wasn't a list of polish items.</p>
+        </div>
+      </div>
+      </div>
+  </section>
+
+  <!-- ══════════════ 03 · PROBLEM ══════════════ -->
+  <section class="sec" id="s03" data-st="pending" data-name="Problem" data-layout="evidence-left">
+    <div class="sbody">
+      <div class="lgrid">
+        <div class="head">
+          <div class="eb">Problem</div>
+          <div class="big w" data-edit="s03-head">Every platform had quietly become a different product.</div>
+        </div>
+        <div class="body-col">
+          <p class="t" data-edit="s03-p1">A legacy API under years of patches. No native Android, iOS or Flutter SDK at all. mWeb broken. Back buttons in the wrong places. Error screens that sometimes didn't name the error. <b>And contrast failures caused by the brand colour itself.</b></p>
+        </div>
+        <div class="visual">
+          </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 04 · THE ASK ══════════════ -->
+  <section class="sec" id="s04" data-st="pending" data-name="The ask" data-layout="split-left">
+    <div class="sbody">
+      <div class="lgrid">
+        <div class="head">
+          <div class="eb">The ask</div>
+          <div class="big" data-edit="s04-head">I pitched a redesign. I was handed a platform.</div>
+        </div>
+        <div class="body-col">
+          <p class="t" data-edit="s04-p1">I built the concept: customisation, language selection, order summary, card scanning, foreign-card handling. Then I took it to our CEO, and after that to a BillDesk co-founder. He came back wanting all of it, <b>plus native Android and iOS.</b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 05 · THE METRIC ══════════════ -->
+  <section class="sec" id="s05" data-st="pending" data-name="The metric" data-layout="statement">
+    <div class="sbody">
+      <div class="lgrid">
+        <div class="head">
+          <div class="eb">The metric I was judged on</div>
+          <div class="big w" data-edit="s05-head">Merchant time-to-integrate.</div>
+        </div>
+        <div class="body-col">
+          <p class="t" data-edit="s05-p1">Days from a merchant signing to their first live transaction. It decides whether a payment gateway grows, and the old SDK was quietly bleeding it.</p>
+        </div>
+      </div>
+      </div>
+  </section>
+
+  <!-- ══════════════ 06 · DIAGNOSIS ══════════════ -->
+  <section class="sec" id="s06" data-st="pending" data-name="Diagnosis" data-layout="triad">
+    <div class="sbody">
+      <div class="eb">Diagnosis</div>
+      <div class="big w" data-edit="s06-head">One product was serving three unrelated people.</div>
+      <p class="t" data-edit="s06-p1">My design team was the manual glue holding it together. Every brand request arrived as a one-off. That isn't a backlog problem. It's an architecture problem wearing a backlog costume.</p>
+      <div class="g3">
+        <div class="c"><div class="r">User 01</div><h4 data-edit="s06-c1-h4">The payer</h4>
+          <p data-edit="s06-c1-p">Has already decided. Needs the payment to survive a dropped connection, a bank timeout, a wrong OTP.</p>
+          <div class="fx">→ PG SDK</div></div>
+        <div class="c"><div class="r">User 02</div><h4 data-edit="s06-c2-h4">The brand owner</h4>
+          <p data-edit="s06-c2-p">Wants the checkout to look like their product, without filing a ticket and waiting three days.</p>
+          <div class="fx">→ Spectrum</div></div>
+        <div class="c"><div class="r">User 03</div><h4 data-edit="s06-c3-h4">The integrator</h4>
+          <p data-edit="s06-c3-p">A merchant's developer. Must rehearse every failure path before shipping, and can't, because failures don't happen on demand.</p>
+          <div class="fx">→ Playground</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 07 · WHAT SHIPPED ══════════════ -->
+  <section class="sec" id="s07" data-st="pending" data-name="What shipped" data-layout="bento">
+    <div class="sbody">
+      <div class="eb">What shipped</div>
+      <div class="big" data-edit="s07-head">Three surfaces, one design language.</div>
+      <p class="t" data-edit="s07-p1">Every component had to work in the checkout, in Spectrum's admin views and in Playground's simulator with no special case. BillDesk UI already existed. I reused it and built the components it was missing, PulseBar and the title bar among them.</p>
+      </div>
+  </section>
+
+  <!-- ══════════════ 08 · THE DECISION ══════════════ -->
+  <section class="sec" id="s08" data-st="pending" data-name="The decision" data-layout="split-left">
+    <div class="sbody">
+      <div class="lgrid">
+        <div class="head">
+          <div class="eb">The decision I'd defend</div>
+          <div class="big w" data-edit="s08-head">I designed the failure path first.</div>
+        </div>
+        <div class="body-col">
+          <p class="t" data-edit="s08-p1">Most checkout design stops at the success state. I argued for building recovery as a first-class flow: when a payment fails, the SDK retries and falls back rather than dead-ending the payer and handing them back to the merchant.</p>
+          <p class="t" data-edit="s08-p2"><b>A payment that fails once isn't a lost customer. It's a customer standing still with their wallet already out.</b></p>
+        </div>
+        <div class="visual">
+          </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 09 · DCC ══════════════ -->
+  <section class="sec" id="s09" data-st="pending" data-name="Currency choice (DCC)" data-layout="evidence-right">
+    <div class="sbody">
+      <div class="lgrid">
+        <div class="head">
+          <div class="eb">Dynamic Currency Conversion</div>
+          <div class="big w" data-edit="s09-head">Pay in your own currency, not the merchant's.</div>
+        </div>
+        <div class="body-col">
+          <p class="t" data-edit="s09-p1">Imagine you're paying abroad with a card from home. Right before you confirm, the screen offers a choice: pay in your own currency and see the exact number now, or pay in the merchant's and let your bank convert it later. That's the choice Dynamic Currency Conversion, DCC, gives the cardholder.</p>
+          <p class="t" data-edit="s09-p1b">It looks like a small screen, but it's an easy one to get wrong: the rate on that conversion is set by the payment network, not the cardholder's own bank, so it isn't always the better deal. That's the edge case I designed around, making sure the screen never nudged the choice either way:</p>
+          <ul class="rules">
+            <li>No pre-selection, no default, <b>no steering</b></li>
+            <li>Currency versus currency, <b>never accept/decline</b></li>
+            <li>Every disclosure at the <b>same size, colour and font</b></li>
+            <li>Markup immediately below the rate, above the total</li>
+            <li>Decline once and <b>you may not re-prompt</b></li>
+          </ul>
+        </div>
+        <div class="visual">
+          </div>
+      </div>
+      </div>
+  </section>
+
+  <!-- ══════════════ 10 · THE PROOF ══════════════ -->
+  <section class="sec" id="s10" data-st="pending" data-name="What got added after" data-layout="sequence">
+    <div class="sbody">
+      <div class="eb">The proof</div>
+      <div class="big w" data-edit="s10-head">Everything added afterwards, without a rebuild.</div>
+      <p class="t" data-edit="s10-p1">Launching was never the test. The test was what the architecture could absorb over the next two years.</p>
+
+      <div class="zz first" id="s10-z1">
+        <div class="zt"><div class="p">Then</div><h4 data-edit="s10-z1-h4">QR</h4>
+          <p data-edit="s10-z1-p">Dynamic, per-order. QR is the cross-device answer; UPI Intent is the same-device one. Choosing between them by surface is the whole design decision.</p></div>
+        </div>
+      <div class="zz flip" id="s10-z2">
+        <div class="zt"><div class="p">Then</div><h4 data-edit="s10-z2-h4">CRIS</h4>
+          <p data-edit="s10-z2-p">Rail ticketing at national scale. This was the integration that put the SDK at 30,000+ transactions a minute.</p></div>
+        </div>
+      <div class="zz" id="s10-z3">
+        <div class="zt"><div class="p">Then</div><h4 data-edit="s10-z3-h4">Banking Connect</h4>
+          <p data-edit="s10-z3-p">NPCI Bharat BillPay's interoperable netbanking switch, press-named "Netbanking 2.0." The payer lands in their already-authenticated bank app instead of typing a user ID and password.</p></div>
+        </div>
+      <div class="zz flip" id="s10-z4">
+        <div class="zt"><div class="p">Then</div><h4 data-edit="s10-z4-h4">E-mandates</h4>
+          <p data-edit="s10-z4-p">Recurring debits authorised once. The edge cases are the work: a debit crossing RBI's ₹15,000 authentication threshold turns a silent auto-debit into an interactive one, <b>so the flow has to degrade gracefully.</b></p></div>
+        </div>
+
+      </div>
+  </section>
+
+  <!-- ══════════════ 11 · FULL CIRCLE ══════════════ -->
+  <section class="sec" id="s11" data-st="pending" data-name="Full circle" data-layout="split-left">
+    <div class="sbody">
+      <div class="lgrid">
+        <div class="head">
+          <div class="eb">Full circle</div>
+          <div class="big w" data-edit="s11-head">The audit opened on a contrast failure. The regulator closed it.</div>
+        </div>
+        <div class="body-col">
+          <p class="t" data-edit="s11-p1">The brand colour itself was failing contrast, which is why Spectrum was never a free-form theming tool. Merchants got their brand; they did not get to recreate that failure.</p>
+          <p class="t" data-edit="s11-p2">Then <b>RBI</b> required payment system participants to make their systems accessible, against a Ministry of Finance banking standard that mandates <b>IS 17802</b> and <b>WCAG 2.1</b>. One explicit rule: no placeholder text as a form label. The card entry fields were rebuilt.</p>
+        </div>
+        <div class="visual">
+          </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 12 · OUTCOMES ══════════════ -->
+  <section class="sec" id="s12" data-st="pending" data-name="Outcomes" data-layout="statement">
+    <div class="sbody">
+      <div class="eb">Outcomes</div>
+      <div class="big" data-edit="s12-head">What moved.</div>
+      <div class="nums">
+        <div class="n"><div class="v">1wk → 48h</div><div class="k">Merchant time-to-integrate</div><span class="prov ok">Rollout tracking</span></div>
+        <div class="n"><div class="v">3d → 10min</div><div class="k">Brand configuration</div><span class="prov ok">Rollout tracking</span></div>
+        <div class="n"><div class="v">30,000+</div><div class="k">Txns / min at peak</div><span class="prov ok">Production</span></div>
+      </div>
+      </div>
+  </section>
+
+  <!-- ══════════════ 13 · WHY DUBAI ══════════════ -->
+  <section class="sec" id="s13" data-st="pending" data-name="Why Dubai" data-layout="close">
+    <div class="sbody">
+      <div class="eb">Why Dubai</div>
+      <div class="big w" data-edit="s13-head">I've already built for the case where the card and the currency don't match.</div>
+      <p class="t" data-edit="s13-p1">India is UPI-dominant, with one rail carrying roughly 85% of digital transaction volume. The UAE is card-first, with Aani and Jaywan still arriving and CBUAE open finance phasing in. Different problem.</p>
+      <p class="t" data-edit="s13-p2">But <b>DCC is mainstream in the Gulf.</b> In a market where most residents are expatriates and a large share of cards are foreign-issued, the currency-mismatch case isn't an edge case. <b>It's the default.</b></p>
+      </div>
+  </section>
+
+</div>
+
+
+<script>
+/* Videos play whenever any sliver of them is on screen - including on load
+   with no scroll - and pause only once they are almost entirely gone. Same
+   1% threshold the workbench was verified at. */
+(function () {
+  var vids = [].slice.call(document.querySelectorAll('video[data-autoplay]'));
+  if (!vids.length) return;
+  vids.forEach(function (v) { v.muted = true; });
+  if (!('IntersectionObserver' in window)) {
+    vids.forEach(function (v) { v.play().catch(function () {}); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.play().catch(function () {}); }
+      else { e.target.pause(); }
+    });
+  }, { threshold: 0.01 });
+  vids.forEach(function (v) { io.observe(v); });
+})();
+</script>
+</body>
+</html>
