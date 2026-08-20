@@ -684,7 +684,7 @@
       // progress 1 = panel centre at 62% up the viewport (settled)
       var progress = clamp((vh - center) / (vh * 0.62), 0, 1);
       var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      var deg = -MAX_DEG * (1 - eased);
+      var deg = MAX_DEG * (1 - eased);
       var rise = RISE_PX * (1 - eased);
       p.style.transform = 'rotateX(' + deg.toFixed(2) + 'deg) translateY(' + rise.toFixed(1) + 'px)';
       p.style.opacity = String(0.55 + 0.45 * eased);
