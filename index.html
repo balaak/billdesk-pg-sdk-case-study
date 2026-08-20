@@ -417,7 +417,12 @@
    the body class below rather than toggled by a button. Nothing about the
    spacing, type scale or grid is re-specified: it is the same stylesheet the
    layout was measured against. ────────────────────────────────────────── */
-  body { margin:0; }
+  /* overflow-x:hidden here, not on any ancestor of the tilted panel, so the
+     video can still bleed past its column right up to the real viewport
+     edge without the page itself gaining a horizontal scrollbar. Needed on
+     both html and body - html is what scrollWidth/clientWidth measure. */
+  html { overflow-x:hidden; }
+  body { margin:0; overflow-x:hidden; }
   .app { padding-top:64px; }
   .slot { margin:20px 0; }
 
@@ -426,8 +431,13 @@
      into the screen) and settles flat as it scrolls up into place - the
      bottom edge is what visibly travels forward. Origin is the panel's own
      top edge so that edge stays anchored and only the bottom moves. */
-  .tilt-stage { perspective:1600px; perspective-origin:50% 30%; }
-  .tilt-panel { transform-origin:50% 0%; will-change:transform; }
+  .tilt-stage { perspective:1600px; perspective-origin:50% 30%; overflow:visible; }
+  .tilt-panel { transform-origin:50% 0%; will-change:transform; overflow:visible; }
+  /* Let the tilted edge bleed past the content column instead of clipping
+     at .sec's card-corner overflow:hidden. Scoped to this slot's own
+     containment chain only (built in build-site.py) - nothing else on the
+     page changes. */
+  .tilt-bleed { overflow:visible; }
   @media (prefers-reduced-motion: reduce) {
     .tilt-panel { transform:none !important; opacity:1 !important; }
   }
@@ -517,8 +527,8 @@
   </section>
 
   <!-- ══════════════ 07 · WHAT SHIPPED ══════════════ -->
-  <section class="sec" id="s07" data-st="pending" data-name="What shipped" data-layout="bento">
-    <div class="sbody">
+  <section class="sec tilt-bleed" id="s07" data-st="pending" data-name="What shipped" data-layout="bento">
+    <div class="sbody tilt-bleed">
       <div class="eb">What shipped</div>
       <div class="big" data-edit="s07-head">Three surfaces, one design language.</div>
       <p class="t" data-edit="s07-p1">Every component had to work in the checkout, in Spectrum's admin views and in Playground's simulator with no special case. BillDesk UI already existed. I reused it and built the components it was missing, PulseBar and the title bar among them.</p>
